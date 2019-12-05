@@ -16,8 +16,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
-      REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_REDIS_URL: "redis://172.31.34.21:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@172.31.34.21:15432/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
   scheduler:
     build: .
@@ -29,7 +29,7 @@ services:
     depends_on:
       - server
     environment:
-      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_REDIS_URL: "redis://172.31.34.21:6379/0"
       REDASH_MAIL_DEFAULT_SENDER: redash@example.com
       REDASH_MAIL_SERVER: email
   worker:
@@ -45,8 +45,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
-      REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_REDIS_URL: "redis://172.31.34.21:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@172.31.34.21:15432/postgres"
   celery-worker:
     build: .
     command: dev_celery_worker
@@ -60,34 +60,26 @@ services:
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
-      REDASH_REDIS_URL: "redis://redis:6379/0"
-      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_REDIS_URL: "redis://172.31.34.21:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@172.31.34.21:15432/postgres"
       QUEUES: "queries,scheduled_queries"
       WORKERS_COUNT: 2
       REDASH_MAIL_DEFAULT_SENDER: redash@example.com
       REDASH_MAIL_SERVER: email
-  redis:
-    image: redis:3-alpine
-    restart: unless-stopped
-    volumes:
-      - redis-dbstore:/data
-  postgres:
-    image: postgres:9.5-alpine
-    # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
-    # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
-    # tests.
-    ports:
-      - "15432:5432"
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
-    restart: unless-stopped
-    volumes:
-      - postgres-dbstore:/var/lib/postgresql/data
+  # redis:
+  #   image: redis:3-alpine
+  #   restart: unless-stopped
+  # postgres:
+  #   image: postgres:9.5-alpine
+  #   # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
+  #   # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
+  #   # tests.
+  #   ports:
+  #     - "15432:5432"
+  #   command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+  #   restart: unless-stopped
   email:
     image: djfarrelly/maildev
     ports:
       - "1080:80"
     restart: unless-stopped
-
-volumes:
-  postgres-dbstore:
-  redis-dbstore:
