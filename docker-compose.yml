@@ -69,6 +69,8 @@ services:
   redis:
     image: redis:3-alpine
     restart: unless-stopped
+    volumes:
+      - redis-dbstore:/data
   postgres:
     image: postgres:9.5-alpine
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
@@ -78,8 +80,14 @@ services:
       - "15432:5432"
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
+    volumes:
+      - postgres-dbstore:/var/lib/postgresql/data
   email:
     image: djfarrelly/maildev
     ports:
       - "1080:80"
     restart: unless-stopped
+
+volumes:
+  postgres-dbstore:
+  redis-dbstore:
