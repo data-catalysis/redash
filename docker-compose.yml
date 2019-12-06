@@ -69,6 +69,8 @@ services:
   redis:
     image: redis:3-alpine
     restart: unless-stopped
+    volumes:
+      - redis-store:/data
   postgres:
     image: postgres:9.5-alpine
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
@@ -88,3 +90,4 @@ services:
 
 volumes:
   postgres-store:
+  redis-store:
